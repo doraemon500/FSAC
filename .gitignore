@@ -5,7 +5,6 @@ cache/**
 results/**
 wandb/
 .ipynb_checkpoints/
-notebooks/*.ipynb
 
 *.pt
 *.pth
