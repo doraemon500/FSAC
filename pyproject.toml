@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "frame-selective-acoustic-conditioning"
+version = "0.1.0"
+description = "Frame-Selective Acoustic Conditioning for Dysarthric ASR Correction"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[tool.setuptools.packages.find]
+include = ["fsac*"]
+
