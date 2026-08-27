@@ -1,6 +1,5 @@
 # Not All Acoustic Frames Contribute Equally: Frame-Selective Acoustic Conditioning for Dysarthric ASR Correction
 
-Official implementation of our Findings of EMNLP 2026 paper on dysarthric ASR correction using the TORGO corpus.
 
 ## Setup
 
