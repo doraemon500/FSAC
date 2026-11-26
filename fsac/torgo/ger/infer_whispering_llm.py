@@ -200,7 +200,7 @@ def _severity_metrics(rows: list[dict]) -> dict:
             continue
         refs = [normalise_text(x["reference"]) for x in items]
         hyps = [normalise_text(x["prediction"]) for x in items]
-        valid = [(r, h) for r, h in zip(refs, hyps) if r and h]
+        valid = [(r, h) for r, h in zip(refs, hyps) if r]
         if not valid:
             continue
         r_list, h_list = zip(*valid)
@@ -214,7 +214,7 @@ def _severity_metrics(rows: list[dict]) -> dict:
     if ctrl_items:
         refs = [normalise_text(x["reference"]) for x in ctrl_items]
         hyps = [normalise_text(x["prediction"]) for x in ctrl_items]
-        valid = [(r, h) for r, h in zip(refs, hyps) if r and h]
+        valid = [(r, h) for r, h in zip(refs, hyps) if r]
         if valid:
             r_list, h_list = zip(*valid)
             out["control"] = {
@@ -310,6 +310,8 @@ def infer(args) -> None:
 
             ref_norm = normalise_text(reference)
             pred_norm = normalise_text(prediction)
+            if not ref_norm:
+                raise ValueError(f"Empty normalized reference: {batch['filename'][0]}")
             rows.append(
                 {
                     "filename": batch["filename"][0],
@@ -317,23 +319,22 @@ def infer(args) -> None:
                     "severity": batch["severity"][0],
                     "reference": reference,
                     "prediction": prediction,
-                    "wer": wer(ref_norm, pred_norm) if ref_norm and pred_norm else 0.0,
-                    "cer": cer(ref_norm, pred_norm) if ref_norm and pred_norm else 0.0,
+                    "wer": wer(ref_norm, pred_norm),
+                    "cer": cer(ref_norm, pred_norm),
                 }
             )
 
-    out_dir.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(rows).to_csv(out_dir / "predictions.csv", index=False)
     refs = [normalise_text(x["reference"]) for x in rows]
     hyps = [normalise_text(x["prediction"]) for x in rows]
-    valid_pairs = [(r, h) for r, h in zip(refs, hyps) if r and h]
+    valid_pairs = [(r, h) for r, h in zip(refs, hyps) if r]
     if valid_pairs:
         r_list, h_list = zip(*valid_pairs)
         overall_wer = wer(list(r_list), list(h_list))
         overall_cer = cer(list(r_list), list(h_list))
     else:
-        overall_wer = 1.0
-        overall_cer = 1.0
+        raise ValueError("No valid references available for evaluation")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(rows).to_csv(out_dir / "predictions.csv", index=False)
     result = {
         "model_name": args.model,
         "fds_mode": args.fds_mode,

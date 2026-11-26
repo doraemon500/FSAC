@@ -225,10 +225,10 @@ def get_canonical_three_way_split(filenames, train_ratio=TRAIN_RATIO, seed=SPLIT
 
 
 
-    if os.environ.get("TORGO_SPLIT_FILE"):
-        return _load_split_file(filenames, os.environ["TORGO_SPLIT_FILE"])
-    train, test = get_canonical_split(filenames, train_ratio=train_ratio, seed=seed)
-    return train, set(test), set(test)
+    split_file = os.environ.get("TORGO_SPLIT_FILE")
+    if not split_file:
+        raise ValueError("TORGO_SPLIT_FILE is required for train/dev/test splitting.")
+    return _load_split_file(filenames, split_file)
 
 
 SPLIT_FILE = os.environ.get("TORGO_SPLIT_FILE")
